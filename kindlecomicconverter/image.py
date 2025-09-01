@@ -31,7 +31,7 @@ from .page_number_crop_alg import get_bbox_crop_margin_page_number, get_bbox_cro
 from .inter_panel_crop_alg import crop_empty_inter_panel
 
 AUTO_CROP_THRESHOLD = 0.015
-
+QUALITY = 95 # 图片质量，默认为 85
 
 class ProfileData:
     def __init__(self):
@@ -100,7 +100,8 @@ class ProfileData:
         'KO': ("Kindle Oasis 2/3/Paperwhite 12/Colorsoft 12", (1264, 1680), Palette16, 1.8),
         'K11': ("Kindle 11", (1072, 1448), Palette16, 1.8),
         'KPW5': ("Kindle Paperwhite 5/Signature Edition", (1236, 1648), Palette16, 1.8),
-        'KS': ("Kindle Scribe", (1860, 2480), Palette16, 1.8),
+        'KS': ("Kindle Scribe", (1440, 1920), Palette16, 1.8),
+        # 'KS': ("Kindle Scribe", (1860, 2480), Palette16, 1.8),
     }
 
     ProfilesKindle = {
@@ -334,13 +335,13 @@ class ComicPage:
             targetPath += '.jpg'
             if self.opt.mozjpeg:
                 with io.BytesIO() as output:
-                    image.save(output, format="JPEG", optimize=1, quality=85)
+                    image.save(output, format="JPEG", optimize=1, quality=QUALITY)
                     input_jpeg_bytes = output.getvalue()
                     output_jpeg_bytes = mozjpeg_lossless_optimization.optimize(input_jpeg_bytes)
                     with open(targetPath, "wb") as output_jpeg_file:
                         output_jpeg_file.write(output_jpeg_bytes)
             else:
-                image.save(targetPath, 'JPEG', optimize=1, quality=85)
+                image.save(targetPath, 'JPEG', optimize=1, quality=QUALITY)
         return targetPath
 
     def gammaCorrectImage(self):
@@ -480,7 +481,7 @@ class Cover:
     def save_to_epub(self, target, tomeid, len_tomes=0):
         try:
             if tomeid == 0:
-                self.image.save(target, "JPEG", optimize=1, quality=85)
+                self.image.save(target, "JPEG", optimize=1, quality=QUALITY)
             else:
                 copy = self.image.copy()
                 draw = ImageDraw.Draw(copy)
@@ -494,7 +495,7 @@ class Cover:
                     stroke_fill=0,
                     stroke_width=25
                 )
-                copy.save(target, "JPEG", optimize=1, quality=85)
+                copy.save(target, "JPEG", optimize=1, quality=QUALITY)
         except IOError:
             raise RuntimeError('Failed to save cover.')
 
@@ -502,6 +503,6 @@ class Cover:
         self.image = ImageOps.contain(self.image, (300, 470), Image.Resampling.LANCZOS)
         try:
             self.image.save(os.path.join(kindle.path.split('documents')[0], 'system', 'thumbnails',
-                                         'thumbnail_' + asin + '_EBOK_portrait.jpg'), 'JPEG', optimize=1, quality=85)
+                                         'thumbnail_' + asin + '_EBOK_portrait.jpg'), 'JPEG', optimize=1, quality=QUALITY)
         except IOError:
             raise RuntimeError('Failed to upload cover.')
