@@ -19,7 +19,7 @@ When using a reMarkable profile (Rmk1, Rmk2, RmkPP), the format automatically de
 for optimal compatibility with your device's native PDF reader.
 
 The absolute highest quality source files are print quality DRM-free PDFs from Kodansha/[Humble Bundle](https://humblebundleinc.sjv.io/xL6Zv1)/Fanatical,
-which can be directly converted by KCC. Be sure to check the spread shift option!
+which can be directly converted by KCC.
 
 Its main feature is various optional image processing steps to look good on eink screens, 
 which have different requirements than normal LCD screens.
@@ -92,13 +92,13 @@ Click on **Assets** of the latest release.
 You probably want either
 - `KCC_*.*.*.exe` (Windows)
 - `kcc_macos_arm_*.*.*.dmg` (recent Mac with Apple Silicon M1 chip or later)
-- `kcc_macos_i386_*.*.*.dmg` (older Mac with Intel chip)
+- `kcc_macos_i386_*.*.*.dmg` (older Mac with Intel chip macOS 12+)
+
+There are also legacy macOS 10.14+ and Windows 7 experimental versions available.
 
 The `c2e` and `c2p` versions are command line tools for power users.
 
-On Windows 11, you may need to run in compatibility mode for an older Windows version.
-
-On Mac, right click open to get past the security warning. macOS 12 Monterey or later is required, you can use https://dortania.github.io/OpenCore-Legacy-Patcher/ to get a newer macOS on unsupported hardware.
+On Mac, right click open to get past the security warning.
 
 For flatpak, Docker, and AppImage versions, refer to the wiki: https://github.com/ciromattia/kcc/wiki/Installation
 
@@ -406,7 +406,7 @@ Older links (dead):
 
 ## PRIVACY
 **KCC** is initiating internet connections in two cases:
-* During startup - Version check.
+* During startup - Version check and announcement check.
 * When error occurs - Automatic reporting on Windows and macOS.
 
 ## KNOWN ISSUES

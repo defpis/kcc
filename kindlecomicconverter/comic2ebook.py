@@ -278,7 +278,7 @@ def buildNAV(dstdir, title, chapters, chapternames):
     f.close()
 
 
-def buildOPF(dstdir, title, filelist, cover=None):
+def buildOPF(dstdir, title, filelist, originalpath, cover=None):
     opffile = os.path.join(dstdir, 'OEBPS', 'content.opf')
     deviceres = options.profileData[1]
     if options.righttoleft:
@@ -366,6 +366,11 @@ def buildOPF(dstdir, title, filelist, cover=None):
     else:
         f.write("</manifest>\n<spine page-progression-direction=\"ltr\" toc=\"ncx\">\n")
         pageside = "left"
+    if originalpath.lower().endswith('.pdf'):
+        if pageside == "right":
+            pageside = "left"
+        else:
+            pageside = "right"       
     if options.spreadshift:
         if pageside == "right":
             pageside = "left"
@@ -440,7 +445,7 @@ def buildOPF(dstdir, title, filelist, cover=None):
                   "</container>"])
     f.close()
 
-def buildEPUB(path, chapternames, tomenumber, ischunked, cover: image.Cover, len_tomes=0):
+def buildEPUB(path, chapternames, tomenumber, ischunked, cover: image.Cover, originalpath, len_tomes=0):
     filelist = []
     chapterlist = []
     os.mkdir(os.path.join(path, 'OEBPS', 'Text'))
@@ -580,7 +585,7 @@ def buildEPUB(path, chapternames, tomenumber, ischunked, cover: image.Cover, len
             chapternames[filename] = aChapter[1]
     buildNCX(path, options.title, chapterlist, chapternames)
     buildNAV(path, options.title, chapterlist, chapternames)
-    buildOPF(path, options.title, filelist, cover)
+    buildOPF(path, options.title, filelist, originalpath, cover)
 
 
 def buildPDF(path, title, cover=None, output_file=None):
@@ -785,16 +790,16 @@ def extract_page(vector):
                 width, height = int(page.rect.width), int(page.rect.height)
                 blank_page = Image.new("RGB", (width, height), "white")
                 blank_page.save(output_path)
-            xref = image_list[0][0]
-            d = doc.extract_image(xref)
-            if d['cs-name'] == 'DeviceCMYK':
-                pix = pymupdf.Pixmap(doc, xref)
-                pix = pymupdf.Pixmap(pymupdf.csRGB, pix)
-                pix.save(output_path)
-                
             else:
-                with open(Path(output_path).with_suffix('.' + d['ext']), "wb") as imgout:
-                    imgout.write(d["image"])
+                xref = image_list[0][0]
+                d = doc.extract_image(xref)
+                if d['cs-name'] == 'DeviceCMYK':
+                    pix = pymupdf.Pixmap(doc, xref)
+                    pix = pymupdf.Pixmap(pymupdf.csRGB, pix)
+                    pix.save(output_path)
+                else:
+                    with open(Path(output_path).with_suffix('.' + d['ext']), "wb") as imgout:
+                        imgout.write(d["image"])
         print("Processed page numbers %i through %i" % (seg_from, seg_to - 1))
 
 
@@ -810,6 +815,11 @@ def mupdf_pdf_process_pages_parallel(filename, output_dir, target_height):
             if len(page.get_images()) > 1:
                 render = True
                 break
+            if len(page.get_images()) == 1:
+                image = page.get_images()[0]
+                if not image[5] or image[8] == 'CCITTFaxDecode':
+                    render = True
+                    break
 
     cpu = cpu_count()
 
@@ -1232,7 +1242,7 @@ def makeZIP(zipfilename, basedir, isepub=False):
             mimetypeFile = open(os.path.join(basedir, 'mimetype'), 'w')
             mimetypeFile.write('application/epub+zip')
             mimetypeFile.close()
-        subprocess_run([SEVENZIP, 'a', '-tzip', zipfilename, os.path.join(basedir, "*")], capture_output=True, check=True)
+        subprocess_run([SEVENZIP, 'a', '-tzip', zipfilename, "*"], capture_output=True, check=True, cwd=basedir)
     else:
         zipOutput = ZipFile(zipfilename, 'w', ZIP_DEFLATED)
         if isepub:
@@ -1574,10 +1584,10 @@ def makeBook(source, qtgui=None):
         else:
             print("Creating EPUB file...")
             if len(tomes) > 1:
-                buildEPUB(tome, chapterNames, tomeNumber, True, cover, len(tomes))
+                buildEPUB(tome, chapterNames, tomeNumber, True, cover, source, len(tomes))
                 filepath.append(getOutputFilename(source, options.output, '.epub', ' ' + str(tomeNumber)))
             else:
-                buildEPUB(tome, chapterNames, tomeNumber, False, cover)
+                buildEPUB(tome, chapterNames, tomeNumber, False, cover, source)
                 filepath.append(getOutputFilename(source, options.output, '.epub', ''))
             makeZIP(tome + '_comic', tome, True)
         # Copy files to final destination (PDF files are already saved directly)
