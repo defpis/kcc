@@ -1,4 +1,4 @@
-if  [ $# -eq 0 ] || [ ! -d "$1" ]; then
+if [ $# -eq 0 ] || [ ! -d "$1" ]; then
   echo "Error: Directory does not exist."
   exit 1
 fi
@@ -26,15 +26,15 @@ for item in "${items[@]}"; do
 done
 echo
 
-source .venv/bin/activate
-python kcc-c2e.py           \
-  --profile KS              \
-  --format EPUB             \
-  --manga-style             \
-  --splitter 1              \
-  --upscale                 \
-  --forcecolor              \
-  --cropping 0              \
-  --eraserainbow            \
+source venv/bin/activate
+python kcc-c2e.py \
+  --profile KS \
+  --format EPUB \
+  --manga-style \
+  --splitter 1 \
+  --upscale \
+  --forcecolor \
+  --cropping 0 \
+  --eraserainbow \
   "${items[@]}"
 deactivate

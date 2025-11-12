@@ -155,10 +155,14 @@ def rgb_to_yuv(rgb_array):
     # Reshape for matrix multiplication
     original_shape = rgb_array.shape
     rgb_flat = rgb_array.reshape(-1, 3)
+
+    # Apply transformation with error handling
+    with np.errstate(divide='ignore', over='ignore', invalid='ignore'):
+        yuv_flat = rgb_flat @ rgb_to_yuv_matrix.T
     
-    # Apply transformation
-    yuv_flat = rgb_flat @ rgb_to_yuv_matrix.T
-    
+    # Clean up any remaining invalid values
+    yuv_flat = np.nan_to_num(yuv_flat, nan=0.0, posinf=255.0, neginf=0.0)
+
     # Reshape back
     yuv_array = yuv_flat.reshape(original_shape)
     
@@ -178,10 +182,14 @@ def yuv_to_rgb(yuv_array):
     # Reshape for matrix multiplication
     original_shape = yuv_array.shape
     yuv_flat = yuv_array.reshape(-1, 3)
+
+    # Apply transformation with error handling
+    with np.errstate(divide='ignore', over='ignore', invalid='ignore'):
+        rgb_flat = yuv_flat @ yuv_to_rgb_matrix.T
     
-    # Apply transformation
-    rgb_flat = yuv_flat @ yuv_to_rgb_matrix.T
-    
+    # Clean up any remaining invalid values
+    rgb_flat = np.nan_to_num(rgb_flat, nan=0.0, posinf=255.0, neginf=0.0)
+
     # Reshape back
     rgb_array = rgb_flat.reshape(original_shape)
     

@@ -102,7 +102,7 @@ class ProfileData:
         'KO': ("Kindle Oasis 2/3/Paperwhite 12", (1264, 1680), Palette16, 1.0),
         'K11': ("Kindle 11", (1072, 1448), Palette16, 1.0),
         'KPW5': ("Kindle Paperwhite 5/Signature Edition", (1236, 1648), Palette16, 1.0),
-        'KS': ("Kindle Scribe", (1440, 1920), Palette16, 1.0), # TODO
+        'KS': ("Kindle Scribe", (1440, 1920), Palette16, 1.0),
         'KCS': ("Kindle Colorsoft", (1264, 1680), Palette16, 1.0),
     }
 
